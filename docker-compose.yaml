@@ -1,0 +1,37 @@
+version: '3.8' # Upgraded to a modern spec supporting advanced features
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=stocks_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck: # Tracks when Postgres is fully initialized
+      test: ["CMD-SHELL", "pg_isready -U postgres -d stocks_db"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    container_name: stock-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy # Prevents app from booting until db healthcheck passes
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/stocks_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=secret
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate # Changed from update for production-grade schema validation
+      - SPRING_SQL_INIT_MODE=always # Forces Spring Boot to run your schema.sql
+
+volumes:
+  pgdata: # Keeps your database trades saved safely if you turn off the containers

@@ -62,8 +62,8 @@ public class TradingServiceImpl implements TradingService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found."));
 
-        if (order.getStatus() != Order.OrderStatus.PENDING) { // [cite: 19]
-            throw new IllegalStateException("Only PENDING orders can be filled."); // [cite: 19, 23]
+        if (order.getStatus() != Order.OrderStatus.PENDING) {
+            throw new IllegalStateException("Only PENDING orders can be filled.");
         }
 
         Portfolio portfolio = portfolioRepository.findByTraderIdAndStockForUpdate(order.getTraderId(), order.getStock())
@@ -72,17 +72,17 @@ public class TradingServiceImpl implements TradingService {
                     return new Portfolio(order.getTraderId(), order.getStock(), sector, 0);
                 });
         // Adjust assets based on transactional side
-        if (order.getSide() == Order.Side.BUY) { // [cite: 20]
-            portfolio.setQuantity(portfolio.getQuantity() + order.getQuantity()); // [cite: 20]
+        if (order.getSide() == Order.Side.BUY) {
+            portfolio.setQuantity(portfolio.getQuantity() + order.getQuantity());
         } else { // SELL
             if (portfolio.getQuantity() < order.getQuantity()) {
                 throw new IllegalStateException("Concurrent error: Insufficient stock inventory to fill SELL order.");
             }
-            portfolio.setQuantity(portfolio.getQuantity() - order.getQuantity()); // [cite: 20]
+            portfolio.setQuantity(portfolio.getQuantity() - order.getQuantity());
         }
 
         portfolioRepository.save(portfolio);
-        order.setStatus(Order.OrderStatus.FILLED); // [cite: 8]
+        order.setStatus(Order.OrderStatus.FILLED);
         return orderRepository.save(order);
     }
 
@@ -92,11 +92,11 @@ public class TradingServiceImpl implements TradingService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found."));
 
-        if (order.getStatus() != Order.OrderStatus.PENDING) { // [cite: 22]
-            throw new IllegalStateException("Only PENDING orders can be cancelled. Current status: " + order.getStatus()); // [cite: 22, 23]
+        if (order.getStatus() != Order.OrderStatus.PENDING) {
+            throw new IllegalStateException("Only PENDING orders can be cancelled. Current status: " + order.getStatus());
         }
 
-        order.setStatus(Order.OrderStatus.CANCELLED); // [cite: 9]
+        order.setStatus(Order.OrderStatus.CANCELLED);
         return orderRepository.save(order);
     }
 
@@ -108,6 +108,6 @@ public class TradingServiceImpl implements TradingService {
                 .map(Portfolio::getStock)
                 .collect(Collectors.toSet());
 
-        return SectorOverlapCalculator.calculate(customPortfolioStocks); // [cite: 66]
+        return SectorOverlapCalculator.calculate(customPortfolioStocks);
     }
 }

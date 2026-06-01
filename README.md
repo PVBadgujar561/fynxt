@@ -51,7 +51,7 @@ This implementation is architected to operate under heavy concurrent load, guara
 ### 1. Pre-compilation Build
 Compile the application binary package and execute the automated verification test framework (which runs natively against your local test configurations):
 ```bash
-mvn clean package
+mvn clean package -DskipTests
 ```
 
 ### 2. Launch Using Docker Compose

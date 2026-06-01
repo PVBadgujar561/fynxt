@@ -5,6 +5,7 @@ import com.fynxt.stocks.model.Order;
 import com.fynxt.stocks.model.Portfolio;
 import com.fynxt.stocks.repository.PortfolioRepository;
 import com.fynxt.stocks.service.TradingService;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -100,6 +101,7 @@ public class OrderController {
      * Endpoint: POST /api/portfolios/{traderId}/items
      */
     @PostMapping("/portfolios/{traderId}/items")
+    @Transactional
     public ResponseEntity<Portfolio> addToPortfolio(@PathVariable String traderId, @RequestBody Portfolio input) {
         // Enforce the URL path parameter into the entity mapping structure safely
         input.setTraderId(traderId);
